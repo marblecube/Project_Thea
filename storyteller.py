@@ -2,22 +2,28 @@
 
 import os
 import io
+from dotenv import load_dotenv
 
 import gradio as gr
 from elevenlabs.client import ElevenLabs
 import ollama
 
 # Configuration
+load_dotenv(override=True)
 api_key = os.getenv('ELEVENLABS_API_KEY')
+
 if not api_key:
-    raise ValueError("ELEVENLABS_API_KEY environment variable not set")
+    raise ValueError("ELEVENLABS_API_KEY environment variable not set. Did \
+                      you remember to add it in the .env file?")
+
+client = ElevenLabs(api_key=api_key)
 
 initial_system_message = "You are a friendly conversationalist."
 elevenlabs_voice = (
     "FVQMzxJGPUBtfz1Azdoy"   # Change this to the desired voice name
 )
 
-client = ElevenLabs(api_key=api_key)
+
 
 def format_history(msg: str, history: list[list[str, str]], system_prompt: str):
     """
