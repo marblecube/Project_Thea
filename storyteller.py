@@ -18,10 +18,9 @@ if not api_key:
 
 client = ElevenLabs(api_key=api_key)
 
-initial_system_message = "You are a friendly conversationalist."
-elevenlabs_voice = (
-    "FVQMzxJGPUBtfz1Azdoy"   # Change this to the desired voice name
-)
+initial_system_message = os.getenv('initial_system_message')
+elevenlabs_voice = os.getenv('elevenlabs_voice')
+
 
 
 
