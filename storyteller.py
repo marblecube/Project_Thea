@@ -22,8 +22,6 @@ initial_system_message = os.getenv('initial_system_message')
 elevenlabs_voice = os.getenv('elevenlabs_voice')
 
 
-
-
 def format_history(msg: str, history: list[list[str, str]], system_prompt: str):
     """
     Format chat history for display.
@@ -35,21 +33,27 @@ def format_history(msg: str, history: list[list[str, str]], system_prompt: str):
     chat_history.append({"role": "user", "content": msg})
     return chat_history
 
-def generate_response(msg: str, history: list[list[str, str]], system_prompt: str):
+
+def generate_response(msg: str, history: list[list[str, str]],
+                      system_prompt: str):
     """
     Generate a response using the Llama-2 model via Ollama.
     """
     chat_history = format_history(msg, history, system_prompt)
-    response = ollama.chat(model='llama2-uncensored', stream=True, messages=chat_history)
+    response = ollama.chat(model='llama2-uncensored', stream=True,
+                           messages=chat_history)
     message = ""
     for partial_resp in response:
         if partial_resp["message"]["role"] == "assistant":
             message += partial_resp["message"]["content"]
     return message
 
-def respond_to_text(text: str, history: list[list[str, str]], system_prompt: str):
+
+def respond_to_text(text: str, history: list[list[str, str]],
+                    system_prompt: str):
     """
-    Respond to user text input, generate audio using ElevenLabs API, and play it.
+    Respond to user text input, generate audio using ElevenLabs API,
+    and play it.
     """
     global messages
     messages.append(f"\nUser: {text}")
@@ -62,6 +66,7 @@ def respond_to_text(text: str, history: list[list[str, str]], system_prompt: str
     from elevenlabs import play
     play(audio)
     return response
+
 
 # Initialize messages with the system prompt
 messages = [initial_system_message]
