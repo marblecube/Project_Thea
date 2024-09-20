@@ -64,6 +64,7 @@ def respond_to_text(text: str, history: list[list[str, str]], system_prompt: str
     play(audio)
     return response
 
+
 # Initialize messages with the system prompt
 messages = [initial_system_message]
 
