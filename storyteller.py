@@ -74,7 +74,7 @@ chatbot = gr.ChatInterface(
     ),
     title="LLama-2 (7B) Chatbot using 'Ollama'",
     description="Feel free to ask any question.",
-    theme="soft",
+    theme="monochrome",
     submit_btn="⬅ Send",
     retry_btn="🔄 Regenerate Response",
     undo_btn="↩ Delete Previous",
