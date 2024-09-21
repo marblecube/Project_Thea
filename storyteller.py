@@ -65,9 +65,18 @@ def respond_to_text(text: str, history: list[list[str, str]]):
 # Initialize messages with the system prompt
 messages = [initial_system_message]
 
+# Custom CSS for gradient background
+css = """
+    .gradio-container {
+        background: linear-gradient(to top, green, pink, blue);
+        padding: 20px;
+        border-radius: 8px;
+    }
+"""
+
 # Gradio ChatInterface setup
 chatbot = gr.ChatInterface(
-    respond_to_text,
+    fn=respond_to_text,
     chatbot=gr.Chatbot(
         avatar_images=["user.jpg", "chatbot.png"],
         height="64vh"
@@ -78,7 +87,8 @@ chatbot = gr.ChatInterface(
     submit_btn="⬅ Send",
     retry_btn="🔄 Regenerate Response",
     undo_btn="↩ Delete Previous",
-    clear_btn="🗑️ Clear Chat"
+    clear_btn="🗑️ Clear Chat",
+    css=css
 )
 
 chatbot.launch()
