@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 import os
-import io
 from dotenv import load_dotenv
 
 import gradio as gr
@@ -68,28 +67,53 @@ messages = [initial_system_message]
 # Custom CSS for gradient background
 css = """
     .gradio-container {
-        background: linear-gradient(to top, green, pink, blue);
+        background: linear-gradient(to top, sienna, darksalmon, \
+                     darkolivegreen, teal);
         padding: 20px;
         border-radius: 8px;
+
+h1 {
+    color: mediumspringgreen !important;
+}
+
+a {
+    color: darkseagreen !important;
+    text-decoration: none !important;
+}
+a:hover {
+    text-decoration: underline !important;
+    color: lightseagreen !important;  /* Optional: Darker red on hover */
+}
     }
 """
 
-# Gradio ChatInterface setup
-chatbot = gr.ChatInterface(
-    fn=respond_to_text,
-    chatbot=gr.Chatbot(
-        avatar_images=["user.jpg", "chatbot.png"],
-        height="64vh"
-    ),
-    title="Project Thea",
-    description="A choose-your-own-adventure, interactive, \
-                 relationship-builder.",
-    theme="monochrome",
-    submit_btn="⬅ Send",
-    retry_btn="🔄 Regenerate Response",
-    undo_btn="↩ Delete Previous",
-    clear_btn="🗑️ Clear Chat",
-    css=css
-)
+# Gradio Blocks setup
+with gr.Blocks(css=css) as demo:
+    gr.Markdown("# Project Thea: Interactive Storyteller")
+    gr.Markdown("A choose-your-own-adventure, interactive, relationship-builder. Presented by <a href=\"https://www.firecrackermedia.co\">Firecracker Media</a>.")
+    
+    # Chatbot interface
+    with gr.Row():
+        with gr.Column(scale=3):
+            chatbot = gr.Chatbot(
+                height=400,
+                avatar_images=["user.jpg", "chatbot.png"]
+            )
+        with gr.Column(scale=2):
+            message_box = gr.Textbox(placeholder="Enter your message here...", show_label=False)
+            submit_btn = gr.Button("Send ⬅")
+            mic_btn = gr.Button("Activate Mic")  # Placeholder for future voice functionality
+    
+    # Action when submit is clicked
+    def submit_message(text, history):
+        response = respond_to_text(text, history)
+        history.append((text, response))
+        return history, ""
 
-chatbot.launch()
+    # Clear action
+    def clear_chat():
+        return []
+
+    submit_btn.click(submit_message, [message_box, chatbot], [chatbot, message_box])
+
+demo.launch()
