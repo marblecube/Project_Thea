@@ -81,8 +81,9 @@ chatbot = gr.ChatInterface(
         avatar_images=["user.jpg", "chatbot.png"],
         height="64vh"
     ),
-    title="LLama-2 (7B) Chatbot using 'Ollama'",
-    description="Feel free to ask any question.",
+    title="Project Thea",
+    description="A choose-your-own-adventure, interactive, \
+                 relationship-builder.",
     theme="monochrome",
     submit_btn="⬅ Send",
     retry_btn="🔄 Regenerate Response",
