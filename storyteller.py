@@ -23,24 +23,22 @@ elevenlabs_voice = (
     "FVQMzxJGPUBtfz1Azdoy"   # Change this to the desired voice name
 )
 
-
-
-def format_history(msg: str, history: list[list[str, str]], system_prompt: str):
+def format_history(msg: str, history: list[list[str, str]]):
     """
     Format chat history for display.
     """
-    chat_history = [{"role": "system", "content": system_prompt}]
+    chat_history = [{"role": "system", "content": initial_system_message}]
     for query, response in history:
         chat_history.append({"role": "user", "content": query})
         chat_history.append({"role": "assistant", "content": response})
     chat_history.append({"role": "user", "content": msg})
     return chat_history
 
-def generate_response(msg: str, history: list[list[str, str]], system_prompt: str):
+def generate_response(msg: str, history: list[list[str, str]]):
     """
     Generate a response using the Llama-2 model via Ollama.
     """
-    chat_history = format_history(msg, history, system_prompt)
+    chat_history = format_history(msg, history)
     response = ollama.chat(model='llama2-uncensored', stream=True, messages=chat_history)
     message = ""
     for partial_resp in response:
@@ -48,22 +46,21 @@ def generate_response(msg: str, history: list[list[str, str]], system_prompt: st
             message += partial_resp["message"]["content"]
     return message
 
-def respond_to_text(text: str, history: list[list[str, str]], system_prompt: str):
+def respond_to_text(text: str, history: list[list[str, str]]):
     """
     Respond to user text input, generate audio using ElevenLabs API, and play it.
     """
     global messages
     messages.append(f"\nUser: {text}")
     # Generate response using Llama-2 model
-    response = generate_response(text, history, system_prompt)
+    response = generate_response(text, history)
     messages.append(f"\nAssistant: {response}")
     # Use ElevenLabs API to convert the response to audio
     audio = client.generate(text=response)
-    # Play the audio using elevenlabs play function
+    # Play the audio using ElevenLabs play function
     from elevenlabs import play
     play(audio)
     return response
-
 
 # Initialize messages with the system prompt
 messages = [initial_system_message]
@@ -75,12 +72,6 @@ chatbot = gr.ChatInterface(
         avatar_images=["user.jpg", "chatbot.png"],
         height="64vh"
     ),
-    additional_inputs=[
-        gr.Textbox(
-            initial_system_message,
-            label="System Prompt"
-        )
-    ],
     title="LLama-2 (7B) Chatbot using 'Ollama'",
     description="Feel free to ask any question.",
     theme="soft",
