@@ -19,7 +19,7 @@ if not api_key or not openai_api_key:
 client = ElevenLabs(api_key=api_key)
 openai_client = OpenAI()
 
-initial_system_message = "You are a friendly conversationalist."
+initial_system_message = os.getenv('INITIAL_SYSTEM_MESSAGE')
 elevenlabs_voice = "FVQMzxJGPUBtfz1Azdoy"  # Change this to the desired voice ID
 
 def format_history(msg: str, history: list[list[str, str]]):
