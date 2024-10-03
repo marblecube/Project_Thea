@@ -4,9 +4,10 @@ import os
 import logging
 from dotenv import load_dotenv
 from openai import OpenAI
+from logging_config import setup_logging
 
 # Set up logging
-logging.basicConfig(level=logging.INFO)
+setup_logging()
 
 # Configuration
 load_dotenv(override=True)

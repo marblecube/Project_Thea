@@ -1,4 +1,7 @@
-ignore venv (virtual environment)
+# ignore app.log (output from logging)
+app.log
+
+# ignore venv (virtual environment)
 venv/
 
 # Ignore archive directory

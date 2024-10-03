@@ -5,9 +5,10 @@ import logging
 from dotenv import load_dotenv
 from elevenlabs.client import ElevenLabs
 from elevenlabs import play
+from logging_config import setup_logging
 
 # Set up logging
-logging.basicConfig(level=logging.INFO)
+setup_logging()
 
 # Configuration
 load_dotenv(override=True)
@@ -21,12 +22,25 @@ elevenlabs_voice = os.getenv('ELEVENLABS_VOICE')
 
 def synthesize_speech(text: str):
     try:
-        # If generate returns a generator, convert it to a list or process it
-        audio = list(client.generate(text=text, voice=elevenlabs_voice))
-        logging.info(f"Audio type: {type(audio)}")  # Log the type for debugging
-        return audio[0] if audio else None  # Adjust based on your needs
+        # Generate the speech (which returns a generator)
+        audio_generator = client.generate(text=text, voice=elevenlabs_voice)
+        
+        # Collect the audio data from the generator
+        audio = b"".join(audio_generator)
+        
+        # Check if any audio data was collected
+        if not audio:
+            logging.error("No audio was generated.")
+            return None
+
+        # Log the audio type and a portion of the content
+        logging.info(f"Audio type after joining: {type(audio)}")
+        logging.info(f"Audio content (first 100 bytes): {audio[:100]}")
+        
+        return audio
+
     except Exception as e:
-        print(f"Error synthesizing speech: {e}")
+        logging.error(f"Error synthesizing speech: {e}")
         return None
 
 
