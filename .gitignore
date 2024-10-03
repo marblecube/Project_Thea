@@ -1,3 +1,7 @@
+# ignore pycache
+__pycache__/
+
+
 # ignore app.log (output from logging)
 app.log
 
