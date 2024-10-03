@@ -1,26 +1,21 @@
 #!/usr/bin/env python3
 
 import os
+import logging
 import time
 from dotenv import load_dotenv
 import gradio as gr
-from elevenlabs.client import ElevenLabs
 import ollama
-from openai import OpenAI
 
-# Configuration
+from audio_handlers.whisper_handler import transcribe_audio
+from audio_handlers.elevenlabs_handler import synthesize_speech, client
+
+# Set up logging
+logging.basicConfig(level=logging.INFO)
+
+# Load environment variables from .env
 load_dotenv(override=True)
-elevenlabs_api_key = os.getenv('ELEVENLABS_API_KEY')
-openai_api_key = os.getenv('OPENAI_API_KEY')
-
-if not api_key or not openai_api_key:
-    raise ValueError("ELEVENLABS_API_KEY or OPENAI_API_KEY environment variable not set. Did you remember to add them in the .env file?")
-
-client = ElevenLabs(api_key=elevenlabs_api_key)
-openai_client = OpenAI()
-
 initial_system_message = os.getenv('INITIAL_SYSTEM_MESSAGE')
-elevenlabs_voice = os.getenv('ELEVENLABS_VOICE')
 
 def format_history(msg: str, history: list[list[str, str]]):
     chat_history = [{"role": "system", "content": initial_system_message}]
@@ -59,34 +54,6 @@ def respond_to_text(text: str, history: list[list[str, str]]):
     play(audio)
     return response
 
-def process_audio(audio):
-    print(f"Processing audio: {audio}")
-    if os.path.exists(audio):
-        try:
-            with open(audio, "rb") as audio_file:
-                transcription_response = openai_client.audio.transcriptions.create(
-                    model="whisper-1",
-                    file=audio_file
-                )
-            transcription_text = transcription_response.text
-            print(f"Transcription result: {transcription_text}")
-            return transcription_text
-        except Exception as e:
-            print(f"Error during transcription: {e}")
-            return "Transcription failed."
-    else:
-        print("Audio file does not exist.")
-        return "Audio file does not exist."
-
-def submit_audio(audio, history):
-    transcription = process_audio(audio)
-    if "Error" in transcription:
-        return history, "Error processing audio."
-    
-    response = respond_to_text(transcription, history)
-    history.append((transcription, response))
-    return history, ""
-
 def submit_message(text, history):
     if text.strip() == "":
         return history, ""
@@ -96,6 +63,7 @@ def submit_message(text, history):
 
 messages = [initial_system_message]
 
+# Set up Gradio interface
 css = """
     .gradio-container {
         background: linear-gradient(to top, sienna, darksalmon, darkolivegreen, teal);
@@ -114,6 +82,25 @@ css = """
         color: lightseagreen !important;
     }
 """
+
+def submit_message(text, history):
+    if text.strip() == "":
+        return history, ""
+    response = respond_to_text(text, history)
+    history.append((text, response))
+    return history, ""
+
+
+# Function to submit audio input
+def submit_audio(audio_path, chatbot):
+    # Transcribe audio input
+    transcribed_text = transcribe_audio(audio_path)
+    # Optionally process the transcribed text and generate a response
+    response = synthesize_speech(transcribed_text)  # Add logic for response generation
+    chatbot.append(("User", transcribed_text))
+    chatbot.append(("Bot", response))
+    return chatbot, ""
+
 
 with gr.Blocks(css=css) as demo:
     gr.Markdown("# Project Thea: Interactive Storyteller")
